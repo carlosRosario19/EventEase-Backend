@@ -17,10 +17,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### Linux & macOS
 1. Open a terminal.
-2. Navigate to the project directory:
-   ```sh
-   cd /path/to/project
-   ```
+2. Navigate to the project directory.
 3. Run the setup script:
    ```sh
    ./setup.sh
@@ -29,9 +26,6 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ### Windows (Command Prompt or PowerShell)
 1. Open **Command Prompt** or **PowerShell** as Administrator.
 2. Navigate to the project directory:
-   ```bat
-   cd C:\path\to\project
-   ```
 3. Run the setup script:
    ```bat
    setup.bat

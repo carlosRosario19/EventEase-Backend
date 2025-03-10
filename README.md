@@ -31,7 +31,8 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
    setup.bat
    ```
 4. In case it prompts for credentials, enter:
-    
+   Username: SYSTEM
+   Password: test123
 
 ## What the Setup Script Does
 

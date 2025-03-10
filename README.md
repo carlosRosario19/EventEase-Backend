@@ -8,11 +8,6 @@ Before running the setup, ensure you have the following installed:
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-For **Windows users**, running scripts in PowerShell may require changing the execution policy:
-```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
 ## Setup Instructions
 
 ### Linux & macOS

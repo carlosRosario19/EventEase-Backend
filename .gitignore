@@ -1,20 +1,51 @@
+# General Help and Documentation Files
 HELP.md
+
+# Maven and Build Output
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Java-specific Temporary Files
+*.class
+
+# Eclipse-specific Files
+.metadata              # Workspace metadata
+.classpath             # Eclipse classpath file
+.project               # Eclipse project file
+.settings/             # Project-specific settings
+.buildpath             # PDT-specific build path
+.cproject              # CDT-specific project file
+*.pydevproject         # PyDev-specific project file
+*.launch               # Eclipse launch configurations
+.loadpath              # Eclipse loadpath
+.externalToolBuilders/ # External tool builders
+/src/main/resources/rebel.xml  # Rebel XML files (JRebel)
+
+# Eclipse Temporary and Backup Files
+tmp/
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+
+# Eclipse-specific Generated Files
+.bin/                  # Eclipse binary folder (sometimes generated)
+.recommenders/         # Code Recommenders data
+.serverworks/          # Server-related files
+
+# Other IDEs and Tools
+### Spring Tool Suite (STS) ###
 .apt_generated
-.classpath
 .factorypath
-.project
-.settings
 .springBeans
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -32,32 +63,5 @@ build/
 ### VS Code ###
 .vscode/
 
-######################
-# Eclipse
-######################
-*.pydevproject
-.metadata
-tmp/
-tmp/**/*
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-/src/main/resources/rebel.xml
-
-# External tool builders
-.externalToolBuilders/**
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# CDT-specific
-.cproject
-
-# PDT-specific
-.buildpath
-
+# Custom Project-specific Files
 /oracle-data/

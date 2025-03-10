@@ -59,3 +59,5 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+/oracle-data/

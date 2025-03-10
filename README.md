@@ -30,6 +30,8 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```bat
    setup.bat
    ```
+4. In case it prompts for credentials, enter:
+    
 
 ## What the Setup Script Does
 

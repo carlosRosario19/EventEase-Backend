@@ -60,6 +60,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(configurer -> configurer
                 .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/**").hasRole("MEMBER"));
 
         http.httpBasic(Customizer.withDefaults());

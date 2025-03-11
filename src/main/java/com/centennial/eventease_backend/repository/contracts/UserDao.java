@@ -1,4 +1,4 @@
-package com.centennial.eventease_backend.repository;
+package com.centennial.eventease_backend.repository.contracts;
 
 import com.centennial.eventease_backend.entities.User;
 

@@ -1,4 +1,4 @@
-package com.centennial.eventease_backend.services;
+package com.centennial.eventease_backend.services.implementations;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

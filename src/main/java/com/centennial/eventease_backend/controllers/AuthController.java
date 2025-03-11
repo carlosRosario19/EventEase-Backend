@@ -1,6 +1,6 @@
 package com.centennial.eventease_backend.controllers;
 
-import com.centennial.eventease_backend.services.TokenService;
+import com.centennial.eventease_backend.services.implementations.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;

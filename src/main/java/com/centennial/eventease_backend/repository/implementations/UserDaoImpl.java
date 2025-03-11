@@ -1,6 +1,7 @@
-package com.centennial.eventease_backend.repository;
+package com.centennial.eventease_backend.repository.implementations;
 
 import com.centennial.eventease_backend.entities.User;
+import com.centennial.eventease_backend.repository.contracts.UserDao;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class UserDaoImpl implements UserDao{
+public class UserDaoImpl implements UserDao {
 
     private final EntityManager entityManager;
 

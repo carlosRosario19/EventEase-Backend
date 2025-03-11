@@ -1,7 +1,7 @@
-package com.centennial.eventease_backend.services;
+package com.centennial.eventease_backend.services.implementations;
 
 import com.centennial.eventease_backend.entities.User;
-import com.centennial.eventease_backend.repository.UserDao;
+import com.centennial.eventease_backend.repository.contracts.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;

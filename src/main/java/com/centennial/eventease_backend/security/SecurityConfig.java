@@ -1,7 +1,7 @@
 package com.centennial.eventease_backend.security;
 
 
-import com.centennial.eventease_backend.services.AppUserService;
+import com.centennial.eventease_backend.services.implementations.AppUserService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;

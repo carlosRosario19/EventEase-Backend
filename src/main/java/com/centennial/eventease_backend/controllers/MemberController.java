@@ -21,7 +21,7 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("register")
+    @PostMapping("members")
     public void registerMember(@RequestBody AddMemberDTO addMemberDTO) throws UsernameAlreadyExistsException {
         memberService.add(addMemberDTO);
     }

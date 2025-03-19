@@ -50,7 +50,7 @@ public class MemberControllerTest {
     @Test
     @WithMockUser(username = "member", roles={"MEMBER"})
     void saveMember_shouldReturnOk_whenMemberIsSaved() throws Exception {
-        mockMvc.perform(post("/api/register")
+        mockMvc.perform(post("/api/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validMemberDTO)))
                 .andExpect(status().isOk());
@@ -64,7 +64,7 @@ public class MemberControllerTest {
         Mockito.doThrow(new UsernameAlreadyExistsException("Username already exists in the database"))
                 .when(memberService).add(Mockito.any(AddMemberDTO.class));
 
-        mockMvc.perform(post("/api/register")
+        mockMvc.perform(post("/api/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validMemberDTO)))
                 .andExpect(status().isConflict());

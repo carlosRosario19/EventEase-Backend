@@ -13,10 +13,18 @@ Before running the setup, ensure you have the following installed:
 ### Linux & macOS
 1. Open a terminal.
 2. Navigate to the project directory.
-3. Run the setup script:
+3. If running the setup script for the first time, grant execution permissions:
+   ```sh
+   chmod +x setup.sh
+   ```
+4. Run the setup script:
    ```sh
    ./setup.sh
    ```
+5. If prompted for credentials, enter:
+   Username: SYSTEM
+   Password: test123
+
 
 ### Windows (Command Prompt or PowerShell)
 1. Open **Command Prompt** or **PowerShell** as Administrator.

@@ -65,3 +65,6 @@ build/
 
 # Custom Project-specific Files
 /oracle-data/
+
+# User-uploaded files
+/uploads/

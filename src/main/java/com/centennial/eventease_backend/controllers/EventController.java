@@ -1,12 +1,11 @@
 package com.centennial.eventease_backend.controllers;
 
 import com.centennial.eventease_backend.dto.EventDto;
+import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
 import com.centennial.eventease_backend.services.contracts.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,13 +24,8 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public Page<EventDto> getAllEvents(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        // Create simple pageable without sort
-        Pageable pageable = PageRequest.of(page, size);
-        return eventService.getAll(pageable);
+    public Page<EventDto> getAllEvents(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) throws PageOutOfRangeException {
+        return eventService.getAll(page, size);
     }
 
 }

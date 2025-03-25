@@ -1,6 +1,7 @@
 package com.centennial.eventease_backend.controllers;
 
 import com.centennial.eventease_backend.dto.EventDto;
+import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
 import com.centennial.eventease_backend.services.contracts.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,7 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -46,7 +47,7 @@ public class EventControllerTest {
         List<EventDto> events = Arrays.asList(event1, event2);
         Page<EventDto> page = new PageImpl<>(events);
 
-        when(eventService.getAll(any(Pageable.class))).thenReturn(page);
+        when(eventService.getAll(anyInt(), anyInt())).thenReturn(page);
 
         // Act & Assert
         mockMvc.perform(get("/api/events")
@@ -64,13 +65,61 @@ public class EventControllerTest {
     public void getAllEvents_WithDefaultPagination_ShouldUseDefaults() throws Exception {
         // Arrange
         Page<EventDto> emptyPage = Page.empty();
-        when(eventService.getAll(any(Pageable.class))).thenReturn(emptyPage);
+        when(eventService.getAll(anyInt(), anyInt())).thenReturn(emptyPage);
 
         // Act & Assert
         mockMvc.perform(get("/api/events")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(0));
+    }
+
+    @Test
+    public void getAllEvents_WithNegativePage_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        when(eventService.getAll(-1, 10))
+                .thenThrow(new PageOutOfRangeException("Page number cannot be negative"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events")
+                        .param("page", "-1")
+                        .param("size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Page Out of Range Error"))
+                .andExpect(jsonPath("$.detail").value("Page number cannot be negative"));
+    }
+
+    @Test
+    public void getAllEvents_WithZeroSize_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        when(eventService.getAll(0, 0))
+                .thenThrow(new PageOutOfRangeException("Page size must be greater than 0"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events")
+                        .param("page", "0")
+                        .param("size", "0")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Page Out of Range Error"))
+                .andExpect(jsonPath("$.detail").value("Page size must be greater than 0"));
+    }
+
+    @Test
+    public void getAllEvents_WithExcessiveSize_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        when(eventService.getAll(0, 101))
+                .thenThrow(new PageOutOfRangeException("Page size cannot exceed 100"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events")
+                        .param("page", "0")
+                        .param("size", "101")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Page Out of Range Error"))
+                .andExpect(jsonPath("$.detail").value("Page size cannot exceed 100"));
     }
 
 }

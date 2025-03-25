@@ -16,6 +16,8 @@ public class Event {
     private String title;
     @Column(name = "DESCRIPTION")
     private String description;
+    @Column(name = "IMAGE_PATH")
+    private String imagePath;
     @Column(name = "CATEGORY")
     private String category;
     @Column(name = "DATE_TIME")
@@ -49,6 +51,7 @@ public class Event {
         this.createdAt = createdAt;
     }
 
+
     public int getId() {
         return id;
     }
@@ -71,6 +74,14 @@ public class Event {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public String getCategory() {
@@ -143,6 +154,7 @@ public class Event {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
+                ", imagePath='" + imagePath + '\'' +
                 ", category='" + category + '\'' +
                 ", dateTime=" + dateTime +
                 ", location='" + location + '\'' +

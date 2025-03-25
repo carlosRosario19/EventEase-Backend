@@ -46,7 +46,6 @@ public class MemberDaoImplTest {
                 LocalDate.now(),
                 "doe123");
 
-        member.setMemberId(105);
         userDao.create(new User(member.getUsername(), "test123", 'Y'));
 
         //Act
@@ -75,7 +74,6 @@ public class MemberDaoImplTest {
                 LocalDate.now(),
                 "doe123");
 
-        member.setMemberId(105);
         userDao.create(new User(member.getUsername(), "test123", 'Y'));
 
         memberDao.save(member);

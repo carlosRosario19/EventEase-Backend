@@ -24,8 +24,12 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public Page<EventDto> getAllEvents(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) throws PageOutOfRangeException {
-        return eventService.getAll(page, size);
+    public Page<EventDto> getAllEvents(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size,
+                                       @RequestParam(required = false) String title,
+                                       @RequestParam(required = false) String location,
+                                       @RequestParam(required = false) String category) throws PageOutOfRangeException {
+        return eventService.getAll(page, size, title, location, category);
     }
 
 }

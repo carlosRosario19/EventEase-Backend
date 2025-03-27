@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.isNull;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -46,7 +47,7 @@ public class EventDaoImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // Act
-        Page<Event> result = eventDao.findAllOrderedByDate(pageable);
+        Page<Event> result = eventDao.findAllOrderedByDate(null, null, null, pageable);
 
         // Assert
         assertNotNull(result);

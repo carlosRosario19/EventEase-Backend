@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface EventService {
-    Page<EventDto> getAll(int page, int size) throws PageOutOfRangeException;
+    Page<EventDto> getAll(int page, int size, String title, String location, String category) throws PageOutOfRangeException;
 }

@@ -61,23 +61,24 @@ public class EventServiceTest {
     @Test
     void getAll_WithValidPagination_ShouldReturnPageOfEvents() throws PageOutOfRangeException {
         // Arrange
-        when(eventDao.findAllOrderedByDate(any(Pageable.class))).thenReturn(eventPage);
+        when(eventDao.findAllOrderedByDate(isNull(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(eventPage);
 
         // Act
-        Page<EventDto> result = eventService.getAll(0, 10);
+        Page<EventDto> result = eventService.getAll(0, 10, null, null, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
         assertEquals("Test Event", result.getContent().get(0).title());
-        verify(eventDao).findAllOrderedByDate(PageRequest.of(0, 10));
+        verify(eventDao).findAllOrderedByDate(null, null, null, PageRequest.of(0, 10));
     }
 
     @Test
     void getAll_WithNegativePage_ShouldThrowException() {
         // Act & Assert
         PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
-                () -> eventService.getAll(-1, 10));
+                () -> eventService.getAll(-1, 10, null, null, null));
 
         assertEquals("Page number cannot be negative", exception.getMessage());
         verifyNoInteractions(eventDao);
@@ -87,7 +88,7 @@ public class EventServiceTest {
     void getAll_WithZeroSize_ShouldThrowException() {
         // Act & Assert
         PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
-                () -> eventService.getAll(0, 0));
+                () -> eventService.getAll(0, 0, null, null, null));
 
         assertEquals("Page size must be greater than 0", exception.getMessage());
         verifyNoInteractions(eventDao);
@@ -97,7 +98,7 @@ public class EventServiceTest {
     void getAll_WithExcessiveSize_ShouldThrowException() {
         // Act & Assert
         PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
-                () -> eventService.getAll(0, 101));
+                () -> eventService.getAll(0, 101, null, null, null));
 
         assertEquals("Page size cannot exceed 100", exception.getMessage());
         verifyNoInteractions(eventDao);
@@ -107,11 +108,12 @@ public class EventServiceTest {
     void getAll_WithImagePath_ShouldIncludeImageResource() throws PageOutOfRangeException {
         // Arrange
         testEvent.setImagePath("test.jpg");
-        when(eventDao.findAllOrderedByDate(any(Pageable.class))).thenReturn(eventPage);
+        when(eventDao.findAllOrderedByDate(isNull(), isNull(), isNull(), any(Pageable.class)))
+                .thenReturn(eventPage);
         when(imageStorageService.load("test.jpg")).thenReturn(mockResource);
 
         // Act
-        Page<EventDto> result = eventService.getAll(0, 10);
+        Page<EventDto> result = eventService.getAll(0, 10, null, null, null);
 
         // Assert
         assertNotNull(result.getContent().get(0).image());

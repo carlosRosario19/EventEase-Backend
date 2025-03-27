@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,7 +47,7 @@ public class EventControllerTest {
         List<EventDto> events = Arrays.asList(event1, event2);
         Page<EventDto> page = new PageImpl<>(events);
 
-        when(eventService.getAll(anyInt(), anyInt())).thenReturn(page);
+        when(eventService.getAll(anyInt(), anyInt(), isNull(), isNull(), isNull())).thenReturn(page);
 
         // Act & Assert
         mockMvc.perform(get("/api/events")
@@ -65,7 +65,7 @@ public class EventControllerTest {
     public void getAllEvents_WithDefaultPagination_ShouldUseDefaults() throws Exception {
         // Arrange
         Page<EventDto> emptyPage = Page.empty();
-        when(eventService.getAll(anyInt(), anyInt())).thenReturn(emptyPage);
+        when(eventService.getAll(anyInt(), anyInt(), isNull(), isNull(), isNull())).thenReturn(emptyPage);
 
         // Act & Assert
         mockMvc.perform(get("/api/events")
@@ -77,7 +77,7 @@ public class EventControllerTest {
     @Test
     public void getAllEvents_WithNegativePage_ShouldReturnBadRequest() throws Exception {
         // Arrange
-        when(eventService.getAll(-1, 10))
+        when(eventService.getAll(-1, 10, null, null, null))
                 .thenThrow(new PageOutOfRangeException("Page number cannot be negative"));
 
         // Act & Assert
@@ -93,7 +93,7 @@ public class EventControllerTest {
     @Test
     public void getAllEvents_WithZeroSize_ShouldReturnBadRequest() throws Exception {
         // Arrange
-        when(eventService.getAll(0, 0))
+        when(eventService.getAll(0, 0, null, null, null))
                 .thenThrow(new PageOutOfRangeException("Page size must be greater than 0"));
 
         // Act & Assert
@@ -109,7 +109,7 @@ public class EventControllerTest {
     @Test
     public void getAllEvents_WithExcessiveSize_ShouldReturnBadRequest() throws Exception {
         // Arrange
-        when(eventService.getAll(0, 101))
+        when(eventService.getAll(0, 101, null, null, null))
                 .thenThrow(new PageOutOfRangeException("Page size cannot exceed 100"));
 
         // Act & Assert
@@ -120,6 +120,27 @@ public class EventControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Page Out of Range Error"))
                 .andExpect(jsonPath("$.detail").value("Page size cannot exceed 100"));
+    }
+
+    @Test
+    public void getEvents_WithTitleFilter_ShouldReturnFilteredResults() throws Exception {
+        // Arrange
+        EventDto techEvent = new EventDto(1, "Tech Conference", "Annual tech event", null,
+                "Technology", "Convention Center", 250, 199.99f);
+        Page<EventDto> page = new PageImpl<>(List.of(techEvent));
+
+        when(eventService.getAll(anyInt(), anyInt(), eq("Tech"), isNull(), isNull()))
+                .thenReturn(page);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("title", "Tech")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Tech Conference"));
     }
 
 }

@@ -58,7 +58,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventDto> getAll(int page, int size) throws PageOutOfRangeException {
+    public Page<EventDto> getAll(int page, int size, String title, String location, String category) throws PageOutOfRangeException {
 
         if(page < 0){
             throw new PageOutOfRangeException("Page number cannot be negative");
@@ -71,7 +71,7 @@ public class EventServiceImpl implements EventService {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Event> eventPage = eventDao.findAllOrderedByDate(pageable);
+        Page<Event> eventPage = eventDao.findAllOrderedByDate(title, location, category, pageable);
         return eventPage.map(eventDtoMapper);
     }
 }

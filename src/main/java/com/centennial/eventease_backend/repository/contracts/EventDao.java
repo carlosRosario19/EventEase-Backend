@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface EventDao {
-    Page<Event> findAllOrderedByDate(Pageable pageable);
+    Page<Event> findAllOrderedByDate(String title, String location, String category, Pageable pageable);
 }

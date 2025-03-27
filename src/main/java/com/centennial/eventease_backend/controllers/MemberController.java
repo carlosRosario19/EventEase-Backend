@@ -1,6 +1,6 @@
 package com.centennial.eventease_backend.controllers;
 
-import com.centennial.eventease_backend.dto.AddMemberDTO;
+import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
 import com.centennial.eventease_backend.services.contracts.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class MemberController {
     }
 
     @PostMapping("members")
-    public void registerMember(@RequestBody AddMemberDTO addMemberDTO) throws UsernameAlreadyExistsException {
-        memberService.add(addMemberDTO);
+    public void registerMember(@RequestBody AddMemberDto addMemberDto) throws UsernameAlreadyExistsException {
+        memberService.add(addMemberDto);
     }
 }

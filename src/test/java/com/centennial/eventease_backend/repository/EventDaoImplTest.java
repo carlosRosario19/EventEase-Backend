@@ -15,10 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -55,6 +54,36 @@ public class EventDaoImplTest {
         assertNotNull(result.getTotalPages());
         assertEquals("Event 2", result.getContent().get(0).getTitle()); // Should be ordered by date descending
         assertEquals("Event 1", result.getContent().get(1).getTitle());
+    }
+
+    @Test
+    @Transactional
+    void findById_WhenEventExists_ShouldReturnEvent() {
+        // Arrange
+        Event testEvent = createTestEvent("Test Event", LocalDateTime.now());
+        entityManager.persist(testEvent);
+        entityManager.flush();
+
+        // Act
+        Optional<Event> result = eventDao.findById(testEvent.getId());
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(testEvent.getId(), result.get().getId());
+        assertEquals(testEvent.getTitle(), result.get().getTitle());
+    }
+
+    @Test
+    @Transactional
+    void findById_WhenEventNotExists_ShouldReturnEmpty() {
+        // Arrange - no event persisted
+        int nonExistentId = 999;
+
+        // Act
+        Optional<Event> result = eventDao.findById(nonExistentId);
+
+        // Assert
+        assertFalse(result.isPresent());
     }
 
     private Event createTestEvent(String title, LocalDateTime dateTime) {

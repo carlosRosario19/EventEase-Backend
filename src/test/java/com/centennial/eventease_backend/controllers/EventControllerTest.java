@@ -1,6 +1,7 @@
 package com.centennial.eventease_backend.controllers;
 
 import com.centennial.eventease_backend.dto.EventDto;
+import com.centennial.eventease_backend.dto.GetEventDto;
 import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
 import com.centennial.eventease_backend.services.contracts.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,8 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 import static org.mockito.ArgumentMatchers.*;
@@ -141,6 +144,45 @@ public class EventControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
                 .andExpect(jsonPath("$.content[0].title").value("Tech Conference"));
+    }
+
+    @Test
+    public void getEvent_WhenEventExists_ShouldReturnEvent() throws Exception {
+        // Arrange
+        int eventId = 1;
+        GetEventDto mockEvent = new GetEventDto(eventId, "Test Event", "Description", null, "category test", LocalDateTime.now(), "test location", 30, 200);
+
+        when(eventService.get(eventId))
+                .thenReturn(Optional.of(mockEvent));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events/{id}", eventId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(eventId))
+                .andExpect(jsonPath("$.title").value("Test Event"));
+    }
+
+    @Test
+    public void getEvent_WhenEventNotExists_ShouldReturnNotFound() throws Exception {
+        // Arrange
+        int nonExistentId = 999;
+
+        when(eventService.get(nonExistentId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events/{id}", nonExistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getEvent_WithInvalidId_ShouldReturnBadRequest() throws Exception {
+        // Act & Assert for non-numeric ID
+        mockMvc.perform(get("/api/events/{id}", "invalid")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 }

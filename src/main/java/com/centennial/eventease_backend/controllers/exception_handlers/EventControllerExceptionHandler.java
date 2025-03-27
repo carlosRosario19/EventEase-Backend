@@ -1,5 +1,6 @@
 package com.centennial.eventease_backend.controllers.exception_handlers;
 
+import com.centennial.eventease_backend.exceptions.EventNotFoundException;
 import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -19,5 +20,13 @@ public class EventControllerExceptionHandler {
         problemDetail.setTitle("Page Out of Range Error");
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handleEventNotFoundException(EventNotFoundException ex, HttpServletRequest request){
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Event Not Found Error");
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 }

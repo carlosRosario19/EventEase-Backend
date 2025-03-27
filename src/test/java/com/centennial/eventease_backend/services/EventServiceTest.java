@@ -1,7 +1,9 @@
 package com.centennial.eventease_backend.services;
 
 import com.centennial.eventease_backend.dto.EventDto;
+import com.centennial.eventease_backend.dto.GetEventDto;
 import com.centennial.eventease_backend.entities.Event;
+import com.centennial.eventease_backend.exceptions.EventNotFoundException;
 import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
 import com.centennial.eventease_backend.repository.contracts.EventDao;
 import com.centennial.eventease_backend.services.contracts.ImageStorageService;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -119,4 +122,35 @@ public class EventServiceTest {
         assertNotNull(result.getContent().get(0).image());
         assertEquals(mockResource, result.getContent().get(0).image());
     }
+
+    @Test
+    public void get_WhenEventExistsWithoutImage_ShouldReturnDtoWithNullImage() throws Exception {
+        // Arrange
+        int eventId = 1;
+        testEvent.setImagePath(null);
+
+        when(eventDao.findById(eventId)).thenReturn(Optional.of(testEvent));
+
+        // Act
+        Optional<GetEventDto> result = eventService.get(eventId);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertNull(result.get().image());
+        verify(imageStorageService, never()).load(anyString());
+    }
+
+    @Test
+    public void get_WhenEventNotExists_ShouldThrowEventNotFoundException() {
+        // Arrange
+        int nonExistentId = 999;
+
+        when(eventDao.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EventNotFoundException.class, () -> {
+            eventService.get(nonExistentId);
+        });
+    }
+
 }

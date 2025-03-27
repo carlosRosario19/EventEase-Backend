@@ -1,6 +1,6 @@
 package com.centennial.eventease_backend.services.implementations;
 
-import com.centennial.eventease_backend.dto.AddMemberDTO;
+import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.entities.Authority;
 import com.centennial.eventease_backend.entities.AuthorityId;
 import com.centennial.eventease_backend.entities.Member;
@@ -37,15 +37,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Transactional
     @Override
-    public void add(AddMemberDTO dto) throws UsernameAlreadyExistsException {
-        if (memberDao.findByUsername(dto.username()).isPresent()) {
-            throw new UsernameAlreadyExistsException("Username " + dto.username() + " already exists");
+    public void add(AddMemberDto addMemberDto) throws UsernameAlreadyExistsException {
+        if (memberDao.findByUsername(addMemberDto.username()).isPresent()) {
+            throw new UsernameAlreadyExistsException("Username " + addMemberDto.username() + " already exists");
         }
-        userDao.create(userMapper(dto));
-        memberDao.save(memberMapper(dto));
+        userDao.create(userMapper(addMemberDto));
+        memberDao.save(memberMapper(addMemberDto));
     }
 
-    private Member memberMapper(AddMemberDTO dto){
+    private Member memberMapper(AddMemberDto dto){
         Member member = new Member();
         member.setFirstName(dto.firstName());
         member.setLastName(dto.lastName());
@@ -55,7 +55,7 @@ public class MemberServiceImpl implements MemberService {
         return member;
     }
 
-    private User userMapper(AddMemberDTO dto){
+    private User userMapper(AddMemberDto dto){
         User user = new User();
         user.setUsername(dto.username());
         String hashedPassword = passwordEncoder.encode(dto.password());
@@ -66,7 +66,7 @@ public class MemberServiceImpl implements MemberService {
         return user;
     }
 
-    private final Function<AddMemberDTO, Authority> authorityMapper = dto -> {
+    private final Function<AddMemberDto, Authority> authorityMapper = dto -> {
         Authority authority = new Authority();
         // Initialize the id field
         AuthorityId authorityId = new AuthorityId();

@@ -1,7 +1,7 @@
 package com.centennial.eventease_backend.controllers;
 
 
-import com.centennial.eventease_backend.dto.AddMemberDTO;
+import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
 import com.centennial.eventease_backend.services.contracts.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,11 +33,11 @@ public class MemberControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private AddMemberDTO validMemberDTO;
+    private AddMemberDto validMemberDTO;
 
     @BeforeEach
     void setup() {
-        validMemberDTO = new AddMemberDTO(
+        validMemberDTO = new AddMemberDto(
                 "Doe",
                 "John",
                 "6473179845",
@@ -61,7 +61,7 @@ public class MemberControllerTest {
     @WithMockUser(username = "member", roles={"MEMBER"})
     void saveBook_shouldReturnConflict_whenUsernameAlreadyExists() throws Exception{
         Mockito.doThrow(new UsernameAlreadyExistsException("Username already exists in the database"))
-                .when(memberService).add(Mockito.any(AddMemberDTO.class));
+                .when(memberService).add(Mockito.any(AddMemberDto.class));
 
         mockMvc.perform(post("/api/members")
                         .contentType(MediaType.APPLICATION_JSON)

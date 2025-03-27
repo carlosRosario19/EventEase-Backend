@@ -1,6 +1,6 @@
 package com.centennial.eventease_backend.services;
 
-import com.centennial.eventease_backend.dto.AddMemberDTO;
+import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.entities.Member;
 import com.centennial.eventease_backend.entities.User;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
@@ -35,14 +35,14 @@ public class MemberServiceTest {
     @InjectMocks
     private MemberServiceImpl memberService;
 
-    private AddMemberDTO validMemberDTO;
+    private AddMemberDto validMemberDTO;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         // Create a sample AddMemberDTO
-        validMemberDTO = new AddMemberDTO(
+        validMemberDTO = new AddMemberDto(
                 "Doe",
                 "John",
                 "6479878978",

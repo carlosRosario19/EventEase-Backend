@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Repository
@@ -69,5 +70,15 @@ public class EventDaoImpl implements EventDao {
         query.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(query.getResultList(), pageable, total);
+    }
+
+    @Override
+    public Optional<Event> findById(int id) {
+        try {
+            Event event = entityManager.find(Event.class, id);
+            return Optional.ofNullable(event);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

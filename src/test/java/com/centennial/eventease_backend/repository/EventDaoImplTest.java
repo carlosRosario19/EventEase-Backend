@@ -86,6 +86,81 @@ public class EventDaoImplTest {
         assertFalse(result.isPresent());
     }
 
+    @Transactional
+    @Test
+    void save_ShouldPersistEventWithAllFields() {
+        // Arrange
+        Event testEvent = createTestEvent("New Event", LocalDateTime.now().plusDays(1));
+
+        // Act
+        eventDao.save(testEvent); // void method
+        entityManager.flush(); // Ensure persistence
+        entityManager.clear(); // Clear cache to ensure we get from DB
+
+        // Assert
+        Event retrievedEvent = entityManager.find(Event.class, testEvent.getId());
+        assertNotNull(retrievedEvent, "Event should be found in database");
+        assertAll(
+                () -> assertEquals(testEvent.getTitle(), retrievedEvent.getTitle(), "Title should match"),
+                () -> assertEquals(testEvent.getDescription(), retrievedEvent.getDescription(), "Description should match"),
+                () -> assertEquals(testEvent.getCategory(), retrievedEvent.getCategory(), "Category should match"),
+                () -> assertEquals(testEvent.getLocation(), retrievedEvent.getLocation(), "Location should match"),
+                () -> assertEquals(testEvent.getTotalTickets(), retrievedEvent.getTotalTickets(), "Total tickets should match"),
+                () -> assertEquals(testEvent.getPricePerTicket(), retrievedEvent.getPricePerTicket(), "Price per ticket should match")
+        );
+    }
+
+    @Transactional
+    @Test
+    void findByDateAndLocation_ShouldReturnEvent_WhenMatchExists() {
+        // Arrange - Use fixed datetime with seconds precision
+        LocalDateTime testDateTime = LocalDateTime.now()
+                .withNano(0) // Clear nanoseconds
+                .plusDays(1);
+        String testLocation = "Test Location";
+
+        Event event = createTestEvent("Find Test", testDateTime);
+        event.setLocation(testLocation);
+        eventDao.save(event);
+        entityManager.flush();
+        entityManager.clear(); // Clear persistence context to ensure fresh load
+
+        // Act
+        Optional<Event> result = eventDao.findByDateAndLocation(testDateTime, testLocation);
+
+        // Assert
+        assertTrue(result.isPresent(), "Event should be found");
+        assertEquals(event.getId(), result.get().getId(), "IDs should match");
+
+        // Debug output if needed
+        System.out.println("Saved datetime: " + event.getDateTime());
+        System.out.println("Queried datetime: " + testDateTime);
+        System.out.println("Found datetime: " + (result.isPresent() ? result.get().getDateTime() : "NOT FOUND"));
+    }
+
+    @Transactional
+    @Test
+    void findByDateAndLocation_ShouldReturnEmpty_WhenNoMatch() {
+        // Arrange
+        LocalDateTime testDateTime = LocalDateTime.now().plusDays(1);
+        String testLocation = "Existing Location";
+        Event event = createTestEvent("Existing Event", testDateTime);
+        event.setLocation(testLocation);
+        eventDao.save(event);
+        entityManager.flush();
+
+        // Act
+        Optional<Event> result = eventDao.findByDateAndLocation(
+                testDateTime.plusDays(1), // Different date
+                testLocation
+        );
+
+        // Assert
+        assertFalse(result.isPresent(), "Should not find event with different date");
+    }
+
+
+
     private Event createTestEvent(String title, LocalDateTime dateTime) {
         Event event = new Event();
         event.setTitle(title);

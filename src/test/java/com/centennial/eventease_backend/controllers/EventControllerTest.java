@@ -1,10 +1,12 @@
 package com.centennial.eventease_backend.controllers;
 
+import com.centennial.eventease_backend.dto.CreateEventDto;
 import com.centennial.eventease_backend.dto.EventDto;
 import com.centennial.eventease_backend.dto.GetEventDto;
-import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
+import com.centennial.eventease_backend.exceptions.*;
 import com.centennial.eventease_backend.services.contracts.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,8 +26,10 @@ import java.util.Optional;
 
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -38,6 +44,20 @@ public class EventControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private MockMultipartFile validFile;
+    private LocalDateTime futureDateTime;
+
+    @BeforeEach
+    public void setup() {
+        validFile = new MockMultipartFile(
+                "file",
+                "test.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "test image content".getBytes()
+        );
+        futureDateTime = LocalDateTime.now().plusDays(1);
+    }
 
     @Test
     public void getAllEvents_ShouldReturnPaginatedEvents() throws Exception {
@@ -184,5 +204,147 @@ public class EventControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(roles = "MEMBER")
+    public void saveEvent_ShouldReturnCreated_WhenValidRequest() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "test image content".getBytes()
+        );
+
+        LocalDateTime futureDateTime = LocalDateTime.now().plusDays(1);
+
+        doNothing().when(eventService).save(any(CreateEventDto.class));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(file)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", futureDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "25.50")
+                        .param("memberId", "1")
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void saveEvent_ShouldReturnUnauthorized_WhenNotAuthenticated() throws Exception {
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(validFile)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", futureDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "25.50")
+                        .param("memberId", "1")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "MEMBER")
+    public void saveEvent_ShouldReturnConflict_WhenEventConflictException() throws Exception {
+        // Arrange
+        doThrow(new EventConflictException("Event conflict"))
+                .when(eventService).save(any(CreateEventDto.class));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(validFile)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", futureDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "25.50")
+                        .param("memberId", "1")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(csrf()))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(roles = "MEMBER")
+    public void saveEvent_ShouldReturnBadRequest_WhenInvalidDateTime() throws Exception {
+        // Arrange
+        LocalDateTime pastDateTime = LocalDateTime.now().minusDays(1);
+        doThrow(new InvalidDateTimeException("Invalid date time"))
+                .when(eventService).save(any(CreateEventDto.class));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(validFile)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", pastDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "25.50")
+                        .param("memberId", "1")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "MEMBER")
+    public void saveEvent_ShouldReturnBadRequest_WhenInvalidPrice() throws Exception {
+        // Arrange
+        doThrow(new InvalidPriceException("Invalid price"))
+                .when(eventService).save(any(CreateEventDto.class));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(validFile)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", futureDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "-10.00")
+                        .param("memberId", "1")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "MEMBER")
+    public void saveEvent_ShouldReturnNotFound_WhenMemberNotFound() throws Exception {
+        // Arrange
+        doThrow(new MemberNotFoundException("Member not found"))
+                .when(eventService).save(any(CreateEventDto.class));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/events")
+                        .file(validFile)
+                        .param("title", "Test Event")
+                        .param("description", "Test Description")
+                        .param("category", "Music")
+                        .param("dateTime", futureDateTime.toString())
+                        .param("location", "Test Location")
+                        .param("totalTickets", "100")
+                        .param("pricePerTicket", "25.50")
+                        .param("memberId", "999")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
 
 }

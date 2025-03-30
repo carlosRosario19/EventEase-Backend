@@ -36,4 +36,9 @@ public class MemberDaoImpl implements MemberDao {
     public void save(Member member) {
         entityManager.persist(member);
     }
+
+    @Override
+    public Optional<Member> findById(int id) {
+        return Optional.ofNullable(entityManager.find(Member.class, id));
+    }
 }

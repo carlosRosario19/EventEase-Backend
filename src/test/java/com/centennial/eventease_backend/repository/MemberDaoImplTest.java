@@ -87,4 +87,50 @@ public class MemberDaoImplTest {
         assertThat(foundMember.get().getFirstName()).isEqualTo("Doe");
     }
 
+    @Transactional
+    @Test
+    void findById_shouldReturnMember_whenMemberExists() {
+        // Arrange
+        Member member = new Member(
+                "Doe",
+                "John",
+                "6473967414",
+                LocalDate.now(),
+                "doe123");
+
+        // Create associated User
+        userDao.create(new User(member.getUsername(), "test123", 'Y'));
+
+        // Save member
+        memberDao.save(member);
+        entityManager.flush();
+
+        // Get the ID of the saved member
+        int memberId = member.getMemberId();
+
+        // Act
+        Optional<Member> foundMember = memberDao.findById(memberId);
+
+        // Assert
+        assertThat(foundMember).isPresent();
+        assertThat(foundMember.get().getFirstName()).isEqualTo("Doe");
+        assertThat(foundMember.get().getLastName()).isEqualTo("John");
+        assertThat(foundMember.get().getPhone()).isEqualTo("6473967414");
+    }
+
+    @Transactional
+    @Test
+    void findById_shouldReturnEmpty_whenMemberDoesNotExist() {
+        // Arrange - no setup needed
+
+        // Act
+        Optional<Member> foundMember = memberDao.findById(999); // Non-existent ID
+
+        // Assert
+        assertThat(foundMember).isEmpty();
+    }
+
+
+
+
 }

@@ -1,16 +1,19 @@
 package com.centennial.eventease_backend.services;
 
+import com.centennial.eventease_backend.dto.CreateEventDto;
 import com.centennial.eventease_backend.dto.EventDto;
 import com.centennial.eventease_backend.dto.GetEventDto;
 import com.centennial.eventease_backend.entities.Event;
-import com.centennial.eventease_backend.exceptions.EventNotFoundException;
-import com.centennial.eventease_backend.exceptions.PageOutOfRangeException;
+import com.centennial.eventease_backend.entities.Member;
+import com.centennial.eventease_backend.exceptions.*;
 import com.centennial.eventease_backend.repository.contracts.EventDao;
-import com.centennial.eventease_backend.services.contracts.ImageStorageService;
+import com.centennial.eventease_backend.repository.contracts.MemberDao;
+import com.centennial.eventease_backend.services.contracts.StorageService;
 import com.centennial.eventease_backend.services.implementations.EventServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,7 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,16 +40,22 @@ public class EventServiceTest {
     private EventDao eventDao;
 
     @Mock
-    private ImageStorageService imageStorageService;
+    private StorageService imageStorageService;
+
+    @Mock
+    private MemberDao memberDao;
 
     @Mock
     private Resource mockResource;
+
 
     @InjectMocks
     private EventServiceImpl eventService;
 
     private Event testEvent;
     private Page<Event> eventPage;
+    private CreateEventDto validCreateEventDto;
+    private Member testMember;
 
     @BeforeEach
     void setUp() {
@@ -59,6 +70,20 @@ public class EventServiceTest {
         testEvent.setPricePerTicket(25.0f);
 
         eventPage = new PageImpl<>(List.of(testEvent));
+        testMember = new Member();
+        testMember.setMemberId(1);
+
+        validCreateEventDto = new CreateEventDto(
+                "Test Event",
+                "Test Description",
+                mock(MultipartFile.class),
+                "Test Category",
+                LocalDateTime.now().plusDays(1),
+                "Test Location",
+                100,
+                25.0f,
+                1
+        );
     }
 
     @Test
@@ -73,7 +98,7 @@ public class EventServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        assertEquals("Test Event", result.getContent().get(0).title());
+        assertEquals("Test Event", result.getContent().getFirst().title());
         verify(eventDao).findAllOrderedByDate(null, null, null, PageRequest.of(0, 10));
     }
 
@@ -108,22 +133,6 @@ public class EventServiceTest {
     }
 
     @Test
-    void getAll_WithImagePath_ShouldIncludeImageResource() throws PageOutOfRangeException {
-        // Arrange
-        testEvent.setImagePath("test.jpg");
-        when(eventDao.findAllOrderedByDate(isNull(), isNull(), isNull(), any(Pageable.class)))
-                .thenReturn(eventPage);
-        when(imageStorageService.load("test.jpg")).thenReturn(mockResource);
-
-        // Act
-        Page<EventDto> result = eventService.getAll(0, 10, null, null, null);
-
-        // Assert
-        assertNotNull(result.getContent().get(0).image());
-        assertEquals(mockResource, result.getContent().get(0).image());
-    }
-
-    @Test
     public void get_WhenEventExistsWithoutImage_ShouldReturnDtoWithNullImage() throws Exception {
         // Arrange
         int eventId = 1;
@@ -136,7 +145,7 @@ public class EventServiceTest {
 
         // Assert
         assertTrue(result.isPresent());
-        assertNull(result.get().image());
+        assertNull(result.get().imagePath());
         verify(imageStorageService, never()).load(anyString());
     }
 
@@ -151,6 +160,60 @@ public class EventServiceTest {
         assertThrows(EventNotFoundException.class, () -> {
             eventService.get(nonExistentId);
         });
+    }
+
+    @Test
+    void save_WhenEventConflict_ShouldThrowEventConflictException() {
+        // Arrange
+        when(eventDao.findByDateAndLocation(any(), any())).thenReturn(Optional.of(testEvent));
+
+        // Act & Assert
+        assertThrows(EventConflictException.class, () -> eventService.save(validCreateEventDto));
+        verify(eventDao, never()).save(any());
+    }
+
+    @Test
+    void save_WhenDateIsPast_ShouldThrowInvalidDateTimeException() {
+        // Arrange
+        CreateEventDto pastEventDto = new CreateEventDto(
+                "Test Event", "Description", mock(MultipartFile.class), "Test Category",
+                LocalDateTime.now().minusDays(1), "Location", 100, 20.0f, 1);
+
+        // Act & Assert
+        assertThrows(InvalidDateTimeException.class, () -> eventService.save(pastEventDto));
+        verify(eventDao, never()).save(any());
+    }
+
+    @Test
+    void save_WhenPriceIsNegative_ShouldThrowInvalidPriceException() {
+        // Arrange
+        CreateEventDto invalidPriceEventDto = new CreateEventDto(
+                "Test Event", "Description", mock(MultipartFile.class), "Test Category",
+                LocalDateTime.now().plusDays(1), "Location", 100, -10.0f, 1);
+
+        // Act & Assert
+        assertThrows(InvalidPriceException.class, () -> eventService.save(invalidPriceEventDto));
+        verify(eventDao, never()).save(any());
+    }
+
+    @Test
+    void save_WhenFileIsUploaded_ShouldStoreFile() throws Exception {
+        // Arrange
+        MultipartFile fileMock = mock(MultipartFile.class);
+        when(fileMock.getOriginalFilename()).thenReturn("test.jpg");
+        when(fileMock.isEmpty()).thenReturn(false);
+        CreateEventDto dtoWithFile = new CreateEventDto(
+                "Test Event", "Description", fileMock, "Test Category",
+                LocalDateTime.now().plusDays(1), "Location", 100, 20.0f, 1);
+
+        when(eventDao.findByDateAndLocation(any(), any())).thenReturn(Optional.empty());
+        when(memberDao.findById(anyInt())).thenReturn(Optional.of(testMember));
+
+        // Act
+        eventService.save(dtoWithFile);
+
+        // Assert
+        verify(imageStorageService).store(any(MultipartFile.class));
     }
 
 }

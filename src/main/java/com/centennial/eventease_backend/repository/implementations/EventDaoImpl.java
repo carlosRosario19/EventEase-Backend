@@ -3,6 +3,7 @@ package com.centennial.eventease_backend.repository.implementations;
 import com.centennial.eventease_backend.entities.Event;
 import com.centennial.eventease_backend.repository.contracts.EventDao;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -80,5 +82,26 @@ public class EventDaoImpl implements EventDao {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Optional<Event> findByDateAndLocation(LocalDateTime dateTime, String location) {
+        try {
+            TypedQuery<Event> query = entityManager.createQuery(
+                    "SELECT e FROM Event e WHERE e.dateTime = :dateTime AND e.location = :location",
+                    Event.class);
+            query.setParameter("dateTime", dateTime);
+            query.setParameter("location", location);
+
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void save(Event event) {
+        entityManager.persist(event);
+        entityManager.flush(); // Ensures the insert happens immediately
     }
 }

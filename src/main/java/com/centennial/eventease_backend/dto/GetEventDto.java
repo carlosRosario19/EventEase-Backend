@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public record GetEventDto(int id,
                           String title,
                           String description,
-                          Resource image,
+                          String imagePath,
                           String category,
                           LocalDateTime dateTime,
                           String location,

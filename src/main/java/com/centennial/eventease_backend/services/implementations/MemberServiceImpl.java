@@ -1,10 +1,12 @@
 package com.centennial.eventease_backend.services.implementations;
 
 import com.centennial.eventease_backend.dto.AddMemberDto;
+import com.centennial.eventease_backend.dto.GetMemberDto;
 import com.centennial.eventease_backend.entities.Authority;
 import com.centennial.eventease_backend.entities.AuthorityId;
 import com.centennial.eventease_backend.entities.Member;
 import com.centennial.eventease_backend.entities.User;
+import com.centennial.eventease_backend.exceptions.MemberNotFoundException;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
 import com.centennial.eventease_backend.repository.contracts.MemberDao;
 import com.centennial.eventease_backend.repository.contracts.UserDao;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -43,6 +46,13 @@ public class MemberServiceImpl implements MemberService {
         }
         userDao.create(userMapper(addMemberDto));
         memberDao.save(memberMapper(addMemberDto));
+    }
+
+    @Override
+    public Optional<GetMemberDto> get(int id) throws MemberNotFoundException {
+        return Optional.ofNullable(memberDao.findById(id)
+                .map(getMemberDtoMapper)
+                .orElseThrow(() -> new MemberNotFoundException("Member with id " + id + " not found")));
     }
 
     private Member memberMapper(AddMemberDto dto){
@@ -76,4 +86,7 @@ public class MemberServiceImpl implements MemberService {
         authority.setId(authorityId); // Set the initialized id
         return authority;
     };
+
+    private final Function<Member, GetMemberDto> getMemberDtoMapper = entity ->
+            new GetMemberDto(entity.getMemberId(), entity.getFirstName(), entity.getLastName(), entity.getPhone(), entity.getUsername());
 }

@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("MEMBER")
                 .requestMatchers(HttpMethod.POST, "/api/events").hasRole("MEMBER"));
 
         http.httpBasic(Customizer.withDefaults());

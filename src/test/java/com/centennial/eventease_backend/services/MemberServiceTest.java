@@ -45,11 +45,16 @@ public class MemberServiceTest {
 
         // Create a sample AddMemberDTO
         validMemberDTO = new AddMemberDto(
-                "Doe",
-                "John",
-                "6479878978",
-                "doe",
-                "test123"
+                "John",  // firstName
+                "Doe",   // lastName
+                "6473179845", // phone
+                "doe",    // username
+                "test123", // password
+                "john.doe@example.com", // email
+                "123456789012", // bankAccountNumber
+                "123456789",    // bankRoutingNumber
+                "Royal Bank of Canada", // bankName
+                "Canada"         // bankCountry
         );
     }
 
@@ -92,6 +97,11 @@ public class MemberServiceTest {
         mockMember.setLastName("Doe");
         mockMember.setPhone("6479878978");
         mockMember.setUsername("doe");
+        mockMember.setEmail("john.doe@example.com");
+        mockMember.setBankAccountNumber("123456789012");
+        mockMember.setBankRoutingNumber("123456789");
+        mockMember.setBankName("Royal Bank of Canada");
+        mockMember.setBankCountry("Canada");
 
         when(memberDao.findById(memberId)).thenReturn(Optional.of(mockMember));
 

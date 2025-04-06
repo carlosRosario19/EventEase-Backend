@@ -62,6 +62,11 @@ public class MemberServiceImpl implements MemberService {
         member.setPhone(dto.phone());
         member.setCreatedAt(LocalDate.now());
         member.setUsername(dto.username());
+        member.setEmail(dto.email());
+        member.setBankAccountNumber(dto.bankAccountNumber());
+        member.setBankRoutingNumber(dto.bankRoutingNumber());
+        member.setBankName(dto.bankName());
+        member.setBankCountry(dto.bankCountry());
         return member;
     }
 
@@ -88,5 +93,15 @@ public class MemberServiceImpl implements MemberService {
     };
 
     private final Function<Member, GetMemberDto> getMemberDtoMapper = entity ->
-            new GetMemberDto(entity.getMemberId(), entity.getFirstName(), entity.getLastName(), entity.getPhone(), entity.getUsername());
+            new GetMemberDto(
+                    entity.getMemberId(),
+                    entity.getFirstName(),
+                    entity.getLastName(),
+                    entity.getPhone(),
+                    entity.getUsername(),
+                    entity.getEmail(),
+                    entity.getBankAccountNumber(),
+                    entity.getBankRoutingNumber(),
+                    entity.getBankName(),
+                    entity.getBankCountry());
 }

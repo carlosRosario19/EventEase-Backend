@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +41,17 @@ public class MemberDaoImplTest {
     void create_shouldPersistMember(){
         // Arrange
         Member member = new Member(
-                "Doe",
                 "John",
-                "6473967414",
+                "Doe",
+                "6473179845",
                 LocalDate.now(),
-                "doe123");
+                "doe",
+                "john.doe@example.com",
+                "123456789012",
+                "123456789",
+                "Royal Bank of Canada",
+                "Canada"
+        );
 
         userDao.create(new User(member.getUsername(), "test123", 'Y'));
 
@@ -56,10 +63,10 @@ public class MemberDaoImplTest {
         Member persistedMember = entityManager.find(Member.class, member.getMemberId());
 
         assertThat(persistedMember).isNotNull();
-        assertThat(persistedMember.getFirstName()).isEqualTo("Doe");
-        assertThat(persistedMember.getLastName()).isEqualTo("John");
-        assertThat(persistedMember.getPhone()).isEqualTo("6473967414");
-        assertThat(persistedMember.getUsername()).isEqualTo("doe123");
+        assertThat(persistedMember.getFirstName()).isEqualTo("John");
+        assertThat(persistedMember.getLastName()).isEqualTo("Doe");
+        assertThat(persistedMember.getPhone()).isEqualTo("6473179845");
+        assertThat(persistedMember.getUsername()).isEqualTo("doe");
     }
 
 
@@ -68,11 +75,17 @@ public class MemberDaoImplTest {
     void findByUsername_shouldReturnMember_whenMemberExists(){
         // Arrange
         Member member = new Member(
-                "Doe",
                 "John",
-                "6473967414",
+                "Doe",
+                "6473179845",
                 LocalDate.now(),
-                "doe123");
+                "doe",
+                "john.doe@example.com",
+                "123456789012",
+                "123456789",
+                "Royal Bank of Canada",
+                "Canada"
+        );
 
         userDao.create(new User(member.getUsername(), "test123", 'Y'));
 
@@ -80,11 +93,11 @@ public class MemberDaoImplTest {
         entityManager.flush();
 
         // Act
-        Optional<Member> foundMember = memberDao.findByUsername("doe123");
+        Optional<Member> foundMember = memberDao.findByUsername("doe");
 
         // Assert
         assertThat(foundMember).isPresent();
-        assertThat(foundMember.get().getFirstName()).isEqualTo("Doe");
+        assertThat(foundMember.get().getFirstName()).isEqualTo("John");
     }
 
     @Transactional
@@ -92,11 +105,17 @@ public class MemberDaoImplTest {
     void findById_shouldReturnMember_whenMemberExists() {
         // Arrange
         Member member = new Member(
-                "Doe",
                 "John",
-                "6473967414",
+                "Doe",
+                "6473179845",
                 LocalDate.now(),
-                "doe123");
+                "doe",
+                "john.doe@example.com",
+                "123456789012",
+                "123456789",
+                "Royal Bank of Canada",
+                "Canada"
+        );
 
         // Create associated User
         userDao.create(new User(member.getUsername(), "test123", 'Y'));
@@ -113,9 +132,9 @@ public class MemberDaoImplTest {
 
         // Assert
         assertThat(foundMember).isPresent();
-        assertThat(foundMember.get().getFirstName()).isEqualTo("Doe");
-        assertThat(foundMember.get().getLastName()).isEqualTo("John");
-        assertThat(foundMember.get().getPhone()).isEqualTo("6473967414");
+        assertThat(foundMember.get().getFirstName()).isEqualTo("John");
+        assertThat(foundMember.get().getLastName()).isEqualTo("Doe");
+        assertThat(foundMember.get().getPhone()).isEqualTo("6473179845");
     }
 
     @Transactional
@@ -129,8 +148,4 @@ public class MemberDaoImplTest {
         // Assert
         assertThat(foundMember).isEmpty();
     }
-
-
-
-
 }

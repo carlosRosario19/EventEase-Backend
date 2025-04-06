@@ -3,6 +3,7 @@ package com.centennial.eventease_backend.controllers;
 
 import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.dto.GetMemberDto;
+import com.centennial.eventease_backend.dto.UpdateMemberDto;
 import com.centennial.eventease_backend.exceptions.MemberNotFoundException;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
 import com.centennial.eventease_backend.services.contracts.MemberService;
@@ -23,8 +24,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -137,6 +137,81 @@ public class MemberControllerTest {
         // This test doesn't use @WithMockUser
         mockMvc.perform(get("/api/members/1")
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "member", roles={"MEMBER"})
+    void updateMember_shouldReturnOk_whenMemberIsUpdated() throws Exception {
+        // Arrange
+        UpdateMemberDto updateDto = new UpdateMemberDto(
+                1,
+                "UpdatedJohn",
+                "UpdatedDoe",
+                "555-555-5555",
+                "updated@example.com",
+                "987654321",
+                "987654321",
+                "TD Bank",
+                "USA"
+        );
+
+        // Act & Assert
+        mockMvc.perform(put("/api/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isOk());
+
+        verify(memberService).update(updateDto);
+    }
+
+    @Test
+    @WithMockUser(username = "member", roles={"MEMBER"})
+    void updateMember_shouldReturnNotFound_whenMemberDoesNotExist() throws Exception {
+        // Arrange
+        UpdateMemberDto updateDto = new UpdateMemberDto(
+                999,
+                "UpdatedJohn",
+                "UpdatedDoe",
+                "555-555-5555",
+                "updated@example.com",
+                "987654321",
+                "987654321",
+                "TD Bank",
+                "USA"
+        );
+
+        Mockito.doThrow(new MemberNotFoundException("Member not found"))
+                .when(memberService).update(Mockito.any(UpdateMemberDto.class));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isNotFound());
+
+        verify(memberService).update(updateDto);
+    }
+
+    @Test
+    void updateMember_shouldReturnUnauthorized_whenUserNotAuthenticated() throws Exception {
+        // Arrange
+        UpdateMemberDto updateDto = new UpdateMemberDto(
+                1,
+                "UpdatedJohn",
+                "UpdatedDoe",
+                "555-555-5555",
+                "updated@example.com",
+                "987654321",
+                "987654321",
+                "TD Bank",
+                "USA"
+        );
+
+        // Act & Assert
+        mockMvc.perform(put("/api/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isUnauthorized());
     }
 

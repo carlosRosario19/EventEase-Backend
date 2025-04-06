@@ -93,5 +93,15 @@ public class MemberServiceImpl implements MemberService {
     };
 
     private final Function<Member, GetMemberDto> getMemberDtoMapper = entity ->
-            new GetMemberDto(entity.getMemberId(), entity.getFirstName(), entity.getLastName(), entity.getPhone(), entity.getUsername());
+            new GetMemberDto(
+                    entity.getMemberId(),
+                    entity.getFirstName(),
+                    entity.getLastName(),
+                    entity.getPhone(),
+                    entity.getUsername(),
+                    entity.getEmail(),
+                    entity.getBankAccountNumber(),
+                    entity.getBankRoutingNumber(),
+                    entity.getBankName(),
+                    entity.getBankCountry());
 }

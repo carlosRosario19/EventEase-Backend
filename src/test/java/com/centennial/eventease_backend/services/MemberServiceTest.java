@@ -97,6 +97,11 @@ public class MemberServiceTest {
         mockMember.setLastName("Doe");
         mockMember.setPhone("6479878978");
         mockMember.setUsername("doe");
+        mockMember.setEmail("john.doe@example.com");
+        mockMember.setBankAccountNumber("123456789012");
+        mockMember.setBankRoutingNumber("123456789");
+        mockMember.setBankName("Royal Bank of Canada");
+        mockMember.setBankCountry("Canada");
 
         when(memberDao.findById(memberId)).thenReturn(Optional.of(mockMember));
 

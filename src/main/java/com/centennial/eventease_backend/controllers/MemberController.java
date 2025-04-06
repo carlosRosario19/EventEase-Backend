@@ -2,6 +2,7 @@ package com.centennial.eventease_backend.controllers;
 
 import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.dto.GetMemberDto;
+import com.centennial.eventease_backend.dto.UpdateMemberDto;
 import com.centennial.eventease_backend.exceptions.MemberNotFoundException;
 import com.centennial.eventease_backend.exceptions.UsernameAlreadyExistsException;
 import com.centennial.eventease_backend.services.contracts.MemberService;
@@ -31,5 +32,10 @@ public class MemberController {
         return memberService.get(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("members")
+    public void updateMember(@RequestBody UpdateMemberDto updateMemberDto) throws MemberNotFoundException  {
+        memberService.update(updateMemberDto);
     }
 }

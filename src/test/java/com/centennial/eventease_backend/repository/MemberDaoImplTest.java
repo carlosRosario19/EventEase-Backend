@@ -148,4 +148,48 @@ public class MemberDaoImplTest {
         // Assert
         assertThat(foundMember).isEmpty();
     }
+
+    @Transactional
+    @Test
+    void update_shouldMergeMemberChanges() {
+        // Arrange
+        // First create and persist a member
+        Member member = new Member(
+                "John",
+                "Doe",
+                "6473179845",
+                LocalDate.now(),
+                "doe",
+                "john.doe@example.com",
+                "123456789012",
+                "123456789",
+                "Royal Bank of Canada",
+                "Canada"
+        );
+
+        userDao.create(new User(member.getUsername(), "test123", 'Y'));
+        memberDao.save(member);
+        entityManager.flush();
+        entityManager.detach(member); // Detach to simulate a detached entity
+
+        // Modify the detached member
+        member.setFirstName("UpdatedJohn");
+        member.setLastName("UpdatedDoe");
+        member.setPhone("555-555-5555");
+        member.setEmail("updated@example.com");
+
+        // Act
+        memberDao.update(member);
+        entityManager.flush();
+
+        // Assert
+        Member updatedMember = entityManager.find(Member.class, member.getMemberId());
+        assertThat(updatedMember).isNotNull();
+        assertThat(updatedMember.getFirstName()).isEqualTo("UpdatedJohn");
+        assertThat(updatedMember.getLastName()).isEqualTo("UpdatedDoe");
+        assertThat(updatedMember.getPhone()).isEqualTo("555-555-5555");
+        assertThat(updatedMember.getEmail()).isEqualTo("updated@example.com");
+        // Verify username wasn't changed
+        assertThat(updatedMember.getUsername()).isEqualTo("doe");
+    }
 }

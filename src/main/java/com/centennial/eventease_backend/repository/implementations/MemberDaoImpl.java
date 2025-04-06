@@ -41,4 +41,9 @@ public class MemberDaoImpl implements MemberDao {
     public Optional<Member> findById(int id) {
         return Optional.ofNullable(entityManager.find(Member.class, id));
     }
+
+    @Override
+    public void update(Member member) {
+        entityManager.merge(member);
+    }
 }

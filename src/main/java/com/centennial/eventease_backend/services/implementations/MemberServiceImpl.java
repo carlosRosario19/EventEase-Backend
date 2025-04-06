@@ -2,6 +2,7 @@ package com.centennial.eventease_backend.services.implementations;
 
 import com.centennial.eventease_backend.dto.AddMemberDto;
 import com.centennial.eventease_backend.dto.GetMemberDto;
+import com.centennial.eventease_backend.dto.UpdateMemberDto;
 import com.centennial.eventease_backend.entities.Authority;
 import com.centennial.eventease_backend.entities.AuthorityId;
 import com.centennial.eventease_backend.entities.Member;
@@ -55,6 +56,26 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new MemberNotFoundException("Member with id " + id + " not found")));
     }
 
+    @Transactional
+    @Override
+    public void update(UpdateMemberDto updateMemberDto) throws MemberNotFoundException {
+        // Check if member exists
+        Member existingMember = memberDao.findById(updateMemberDto.id())
+                .orElseThrow(() -> new MemberNotFoundException("Member with id " + updateMemberDto.id() + " not found"));
+
+        // Update member fields
+        existingMember.setFirstName(updateMemberDto.firstName());
+        existingMember.setLastName(updateMemberDto.lastName());
+        existingMember.setPhone(updateMemberDto.phone());
+        existingMember.setEmail(updateMemberDto.email());
+        existingMember.setBankAccountNumber(updateMemberDto.bankAccountNumber());
+        existingMember.setBankRoutingNumber(updateMemberDto.bankRoutingNumber());
+        existingMember.setBankName(updateMemberDto.bankName());
+        existingMember.setBankCountry(updateMemberDto.bankCountry());
+
+        memberDao.update(existingMember);
+    }
+
     private Member memberMapper(AddMemberDto dto){
         Member member = new Member();
         member.setFirstName(dto.firstName());
@@ -104,4 +125,5 @@ public class MemberServiceImpl implements MemberService {
                     entity.getBankRoutingNumber(),
                     entity.getBankName(),
                     entity.getBankCountry());
+
 }

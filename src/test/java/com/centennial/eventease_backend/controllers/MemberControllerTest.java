@@ -46,11 +46,16 @@ public class MemberControllerTest {
     @BeforeEach
     void setup() {
         validMemberDTO = new AddMemberDto(
-                "Doe",
-                "John",
-                "6473179845",
-                "doe",
-                "test123"
+                "John",  // firstName
+                "Doe",   // lastName
+                "6473179845", // phone
+                "doe",    // username
+                "test123", // password
+                "john.doe@example.com", // email
+                "123456789012", // bankAccountNumber
+                "123456789",    // bankRoutingNumber
+                "Royal Bank of Canada", // bankName
+                "Canada"         // bankCountry
         );
     }
 

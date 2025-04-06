@@ -62,6 +62,11 @@ public class MemberServiceImpl implements MemberService {
         member.setPhone(dto.phone());
         member.setCreatedAt(LocalDate.now());
         member.setUsername(dto.username());
+        member.setEmail(dto.email());
+        member.setBankAccountNumber(dto.bankAccountNumber());
+        member.setBankRoutingNumber(dto.bankRoutingNumber());
+        member.setBankName(dto.bankName());
+        member.setBankCountry(dto.bankCountry());
         return member;
     }
 

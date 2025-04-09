@@ -27,9 +27,9 @@ public class MemberController {
         memberService.add(addMemberDto);
     }
 
-    @GetMapping("members/{id}")
-    public ResponseEntity<GetMemberDto> getMember(@PathVariable int id) throws MemberNotFoundException {
-        return memberService.get(id)
+    @GetMapping("members/{username}")
+    public ResponseEntity<GetMemberDto> getMember(@PathVariable String username) throws MemberNotFoundException {
+        return memberService.getByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

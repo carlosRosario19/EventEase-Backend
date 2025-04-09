@@ -50,10 +50,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Optional<GetMemberDto> get(int id) throws MemberNotFoundException {
-        return Optional.ofNullable(memberDao.findById(id)
+    public Optional<GetMemberDto> getByUsername(String username) throws MemberNotFoundException {
+        return Optional.ofNullable(memberDao.findByUsername(username)
                 .map(getMemberDtoMapper)
-                .orElseThrow(() -> new MemberNotFoundException("Member with id " + id + " not found")));
+                .orElseThrow(() -> new MemberNotFoundException("Member with username " + username + " not found")));
     }
 
     @Transactional

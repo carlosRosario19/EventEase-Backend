@@ -104,10 +104,10 @@ public class MemberServiceTest {
         mockMember.setBankName("Royal Bank of Canada");
         mockMember.setBankCountry("Canada");
 
-        when(memberDao.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(memberDao.findByUsername("doe")).thenReturn(Optional.of(mockMember));
 
         // Act
-        Optional<GetMemberDto> result = memberService.get(memberId);
+        Optional<GetMemberDto> result = memberService.getByUsername("doe");
 
         // Assert
         assertTrue(result.isPresent());
@@ -118,23 +118,23 @@ public class MemberServiceTest {
         assertEquals("6479878978", dto.phone());
         assertEquals("doe", dto.username());
 
-        verify(memberDao).findById(memberId);
+        verify(memberDao).findByUsername("doe");
     }
 
     @Test
     void get_shouldThrowMemberNotFoundException_whenMemberDoesNotExist() {
 
-        int nonExistentId = 999;
-        when(memberDao.findById(nonExistentId)).thenReturn(Optional.empty());
+        String nonExistentUsername = "unknown";
+        when(memberDao.findByUsername(nonExistentUsername)).thenReturn(Optional.empty());
 
         // Act & Assert
         MemberNotFoundException exception = assertThrows(
                 MemberNotFoundException.class,
-                () -> memberService.get(nonExistentId)
+                () -> memberService.getByUsername(nonExistentUsername)
         );
 
-        assertEquals("Member with id 999 not found", exception.getMessage());
-        verify(memberDao).findById(nonExistentId);
+        assertEquals("Member with username unknown not found", exception.getMessage());
+        verify(memberDao).findByUsername(nonExistentUsername);
     }
 
     @Test

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface MemberService {
     void add(AddMemberDto addMemberDto) throws UsernameAlreadyExistsException;
-    Optional<GetMemberDto> get(int id) throws MemberNotFoundException;
+    Optional<GetMemberDto> getByUsername(String username) throws MemberNotFoundException;
     void update(UpdateMemberDto updateMemberDto) throws MemberNotFoundException;
 }

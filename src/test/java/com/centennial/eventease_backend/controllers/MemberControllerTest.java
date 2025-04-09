@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -101,11 +102,11 @@ public class MemberControllerTest {
                 "Canada"
         );
 
-        when(memberService.get(1))
+        when(memberService.getByUsername("doe"))
                 .thenReturn(Optional.of(expectedDto));
 
         // Act & Assert
-        mockMvc.perform(get("/api/members/1")
+        mockMvc.perform(get("/api/members/doe")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -114,22 +115,22 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.phone").value("6473179845"))
                 .andExpect(jsonPath("$.username").value("doe"));
 
-        verify(memberService).get(1);
+        verify(memberService).getByUsername("doe");
     }
 
     @Test
     @WithMockUser(username = "member", roles={"MEMBER"})
     void getMember_shouldReturnNotFound_whenMemberDoesNotExist() throws Exception {
         // Arrange
-        when(memberService.get(anyInt()))
+        when(memberService.getByUsername(anyString()))
                 .thenThrow(new MemberNotFoundException("Member not found"));
 
         // Act & Assert
-        mockMvc.perform(get("/api/members/999")
+        mockMvc.perform(get("/api/members/unknown")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        verify(memberService).get(999);
+        verify(memberService).getByUsername("unknown");
     }
 
     @Test

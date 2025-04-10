@@ -28,6 +28,11 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -58,14 +63,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests(configurer -> configurer
-                .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("MEMBER")
-                .requestMatchers(HttpMethod.PUT, "/api/members").hasRole("MEMBER")
-                .requestMatchers(HttpMethod.POST, "/api/events").hasRole("MEMBER"));
+        http
+            .cors(Customizer.withDefaults()) // Enable CORS
+            .authorizeHttpRequests(configurer -> configurer
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests
+                    .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole("MEMBER")
+                    .requestMatchers(HttpMethod.PUT, "/api/members").hasRole("MEMBER")
+                    .requestMatchers(HttpMethod.POST, "/api/events").hasRole("MEMBER")
+            )
+        ;
 
         http.httpBasic(Customizer.withDefaults());
         http.authenticationProvider(authenticationProvider());
@@ -107,6 +117,19 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Your Angular app
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 

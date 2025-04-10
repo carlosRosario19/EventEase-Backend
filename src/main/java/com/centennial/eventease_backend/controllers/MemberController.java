@@ -21,6 +21,13 @@ public class MemberController {
     public MemberController(@Qualifier("memberServiceImpl") MemberService memberService) {
         this.memberService = memberService;
     }
+    
+    @GetMapping("members/username/{username}")
+    public ResponseEntity<GetMemberDto> getMemberByUsername(@PathVariable String username) throws MemberNotFoundException {
+        return memberService.getByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @PostMapping("members")
     public void registerMember(@RequestBody AddMemberDto addMemberDto) throws UsernameAlreadyExistsException {

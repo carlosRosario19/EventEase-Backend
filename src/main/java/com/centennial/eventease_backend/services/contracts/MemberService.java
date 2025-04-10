@@ -12,4 +12,5 @@ public interface MemberService {
     void add(AddMemberDto addMemberDto) throws UsernameAlreadyExistsException;
     Optional<GetMemberDto> get(int id) throws MemberNotFoundException;
     void update(UpdateMemberDto updateMemberDto) throws MemberNotFoundException;
+    Optional<GetMemberDto> getByUsername(String username) throws MemberNotFoundException;
 }

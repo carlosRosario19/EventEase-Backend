@@ -1,6 +1,7 @@
 package com.centennial.eventease_backend.repository.implementations;
 
 import com.centennial.eventease_backend.entities.Event;
+import com.centennial.eventease_backend.entities.Member;
 import com.centennial.eventease_backend.repository.contracts.EventDao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -104,4 +106,29 @@ public class EventDaoImpl implements EventDao {
         entityManager.persist(event);
         entityManager.flush(); // Ensures the insert happens immediately
     }
+
+    @Override
+    public Page<Event> findAllByMember(Member member, Pageable pageable) {
+        // Base queries
+        String countJpql = "SELECT COUNT(e) FROM Event e WHERE e.member = :member";
+        String selectJpql = "SELECT e FROM Event e WHERE e.member = :member";
+
+        // Execute count query
+        Query countQuery = entityManager.createQuery(countJpql)
+                .setParameter("member", member);
+        long total = (Long) countQuery.getSingleResult();
+
+        // Execute select query with pagination
+        TypedQuery<Event> query = entityManager.createQuery(selectJpql, Event.class)
+                .setParameter("member", member)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        query.setHint("org.hibernate.cacheable", false); // Disable cache for consistent results
+        List<Event> events = query.getResultList();
+
+        return new PageImpl<>(events, pageable, total);
+    }
+
+
 }

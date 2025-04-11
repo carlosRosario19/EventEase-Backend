@@ -9,4 +9,5 @@ public interface MemberDao {
     void save(Member member);
     Optional<Member> findById(int id);
     void update(Member member);
+
 }

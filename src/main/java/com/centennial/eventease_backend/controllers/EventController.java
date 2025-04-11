@@ -29,11 +29,13 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public Page<EventDto> getAllEvents(@RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "10") int size,
-                                       @RequestParam(required = false) String title,
-                                       @RequestParam(required = false) String location,
-                                       @RequestParam(required = false) String category) throws PageOutOfRangeException {
+    public Page<EventDto> getAllEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String category
+    ) throws PageOutOfRangeException {
         return eventService.getAll(page, size, title, location, category);
     }
 
@@ -64,6 +66,15 @@ public class EventController {
         );
 
         eventService.save(dto);
+    }
+
+    @GetMapping("/events/member/{username}")
+    public Page<EventDto> getAllEventsByUsername(
+            @PathVariable String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) throws PageOutOfRangeException, MemberNotFoundException {
+        return eventService.getAllByUsername(username, page, size);
     }
 
 }

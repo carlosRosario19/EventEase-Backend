@@ -216,4 +216,86 @@ public class EventServiceTest {
         verify(imageStorageService).store(any(MultipartFile.class));
     }
 
+    @Test
+    void getAllByUsername_WithValidUsernameAndPagination_ShouldReturnPageOfEvents() throws PageOutOfRangeException, MemberNotFoundException {
+        // Arrange
+        String username = "testuser";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(memberDao.findByUsername(username))
+                .thenReturn(Optional.of(testMember));
+        when(eventDao.findAllByMember(testMember, pageable))
+                .thenReturn(eventPage);
+
+        // Act
+        Page<EventDto> result = eventService.getAllByUsername(username, 0, 10);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        assertEquals("Test Event", result.getContent().getFirst().title());
+        verify(memberDao).findByUsername(username);
+        verify(eventDao).findAllByMember(testMember, pageable);
+    }
+
+    @Test
+    void getAllByUsername_WithNonexistentUsername_ShouldThrowMemberNotFoundException() {
+        // Arrange
+        String username = "nonexistent";
+
+        when(memberDao.findByUsername(username))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        MemberNotFoundException exception = assertThrows(MemberNotFoundException.class,
+                () -> eventService.getAllByUsername(username, 0, 10));
+
+        assertEquals("Member not found with username: " + username, exception.getMessage());
+        verify(memberDao).findByUsername(username);
+        verifyNoInteractions(eventDao);
+    }
+
+    @Test
+    void getAllByUsername_WithNegativePage_ShouldThrowPageOutOfRangeException() {
+        // Arrange
+        String username = "testuser";
+
+        // Act & Assert
+        PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
+                () -> eventService.getAllByUsername(username, -1, 10));
+
+        assertEquals("Page number cannot be negative", exception.getMessage());
+        verifyNoInteractions(memberDao);
+        verifyNoInteractions(eventDao);
+    }
+
+    @Test
+    void getAllByUsername_WithZeroSize_ShouldThrowPageOutOfRangeException() {
+        // Arrange
+        String username = "testuser";
+
+        // Act & Assert
+        PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
+                () -> eventService.getAllByUsername(username, 0, 0));
+
+        assertEquals("Page size must be greater than 0", exception.getMessage());
+        verifyNoInteractions(memberDao);
+        verifyNoInteractions(eventDao);
+    }
+
+    @Test
+    void getAllByUsername_WithExcessiveSize_ShouldThrowPageOutOfRangeException() {
+        // Arrange
+        String username = "testuser";
+
+        // Act & Assert
+        PageOutOfRangeException exception = assertThrows(PageOutOfRangeException.class,
+                () -> eventService.getAllByUsername(username, 0, 101));
+
+        assertEquals("Page size cannot exceed 100", exception.getMessage());
+        verifyNoInteractions(memberDao);
+        verifyNoInteractions(eventDao);
+    }
+
+
 }

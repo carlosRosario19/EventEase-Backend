@@ -346,5 +346,59 @@ public class EventControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void getAllEventsByUsername_WhenUserExists_ShouldReturnPaginatedEvents() throws Exception {
+        // Arrange
+        String username = "testuser";
+        EventDto event1 = new EventDto(1, "User Event 1", "Description 1", null,
+                "Category", "Location", 100, 50.0f);
+        EventDto event2 = new EventDto(2, "User Event 2", "Description 2", null,
+                "Category", "Location", 200, 75.0f);
+
+        Page<EventDto> page = new PageImpl<>(Arrays.asList(event1, event2));
+
+        when(eventService.getAllByUsername(eq(username), anyInt(), anyInt()))
+                .thenReturn(page);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events/member/{username}", username)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].title").value("User Event 1"))
+                .andExpect(jsonPath("$.content[1].title").value("User Event 2"));
+    }
+
+    @Test
+    public void getAllEventsByUsername_WithDefaultPagination_ShouldUseDefaults() throws Exception {
+        // Arrange
+        String username = "testuser";
+        Page<EventDto> emptyPage = Page.empty();
+
+        when(eventService.getAllByUsername(eq(username), eq(0), eq(10)))
+                .thenReturn(emptyPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events/member/{username}", username))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
+    }
+
+    @Test
+    public void getAllEventsByUsername_WhenUserNotExists_ShouldReturnNotFound() throws Exception {
+        // Arrange
+        String username = "nonexistent";
+
+        when(eventService.getAllByUsername(eq(username), anyInt(), anyInt()))
+                .thenThrow(new MemberNotFoundException("Member not found"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/events/member/{username}", username))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Member Not Found Error"))
+                .andExpect(jsonPath("$.detail").value("Member not found"));
+    }
+
 
 }

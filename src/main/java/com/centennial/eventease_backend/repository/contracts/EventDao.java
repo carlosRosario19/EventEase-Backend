@@ -1,6 +1,7 @@
 package com.centennial.eventease_backend.repository.contracts;
 
 import com.centennial.eventease_backend.entities.Event;
+import com.centennial.eventease_backend.entities.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,4 +14,5 @@ public interface EventDao {
     Optional<Event> findById(int id);
     Optional<Event> findByDateAndLocation(LocalDateTime dateTime, String location);
     void save(Event event);
+    Page<Event> findAllByMember(Member member, Pageable pageable);
 }

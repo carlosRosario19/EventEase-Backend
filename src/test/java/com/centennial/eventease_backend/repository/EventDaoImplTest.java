@@ -1,6 +1,7 @@
 package com.centennial.eventease_backend.repository;
 
 import com.centennial.eventease_backend.entities.Event;
+import com.centennial.eventease_backend.entities.Member;
 import com.centennial.eventease_backend.repository.contracts.EventDao;
 import com.centennial.eventease_backend.repository.implementations.EventDaoImpl;
 import jakarta.persistence.EntityManager;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -158,6 +160,44 @@ public class EventDaoImplTest {
         // Assert
         assertFalse(result.isPresent(), "Should not find event with different date");
     }
+
+    @Transactional
+    @Test
+    void findAllByMember_ShouldReturnPaginatedEventsForGivenMember() {
+        // Arrange
+        Member member = new Member();
+        member.setFirstName("John");
+        member.setLastName("Doe");
+        member.setUsername("doe");
+        member.setEmail("john@example.com");
+        member.setCreatedAt(LocalDate.now());
+        entityManager.persist(member);
+
+        Event event1 = createTestEvent("Event A", LocalDateTime.now().plusDays(1));
+        event1.setMember(member);
+
+        Event event2 = createTestEvent("Event B", LocalDateTime.now().plusDays(2));
+        event2.setMember(member);
+
+        Event unrelatedEvent = createTestEvent("Other Event", LocalDateTime.now().plusDays(3));
+        unrelatedEvent.setMember(null); // not linked to member
+
+        entityManager.persist(event1);
+        entityManager.persist(event2);
+        entityManager.persist(unrelatedEvent);
+        entityManager.flush();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Event> result = eventDao.findAllByMember(member, pageable);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements(), "Should return 2 events for the member");
+        assertTrue(result.getContent().stream().allMatch(e -> e.getMember().getMemberId() == member.getMemberId()), "All events should belong to the given member");
+    }
+
 
 
 

@@ -117,6 +117,25 @@ public class EventServiceImpl implements EventService {
         eventDao.save(event);
     }
 
+    @Override
+    public Page<EventDto> getAllByUsername(String username, int page, int size) throws PageOutOfRangeException, MemberNotFoundException {
+        if(page < 0){
+            throw new PageOutOfRangeException("Page number cannot be negative");
+        }
+        else if(size <= 0){
+            throw new PageOutOfRangeException("Page size must be greater than 0");
+        }
+        else if(size > MAX_PAGE_SIZE){
+            throw new PageOutOfRangeException("Page size cannot exceed " + MAX_PAGE_SIZE);
+        }
+        Member member = memberDao.findByUsername(username)
+                .orElseThrow(() -> new MemberNotFoundException("Member not found with username: " + username));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventPage = eventDao.findAllByMember(member, pageable);
+        return eventPage.map(eventDtoMapper);
+    }
+
     private final Function<Event, EventDto> eventDtoMapper = entity -> {
         int ticketsLeft = entity.getTotalTickets() - entity.getTicketsSold();
         return new EventDto(

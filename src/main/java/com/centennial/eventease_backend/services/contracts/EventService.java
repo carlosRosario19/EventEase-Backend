@@ -13,4 +13,5 @@ public interface EventService {
     Page<EventDto> getAll(int page, int size, String title, String location, String category) throws PageOutOfRangeException;
     Optional<GetEventDto> get(int id) throws EventNotFoundException;
     void save(CreateEventDto createEventDto) throws EventConflictException, InvalidDateTimeException, InvalidPriceException, MemberNotFoundException;
+    Page<EventDto> getAllByUsername(String username, int page, int size) throws PageOutOfRangeException, MemberNotFoundException;
 }

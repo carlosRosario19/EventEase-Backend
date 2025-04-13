@@ -1,12 +1,21 @@
 version: '3.8'
 
 services:
+  server:
+    build:
+      context: .
+    ports:
+      - 8080:8080
+    depends_on:
+      oracle-xe:
+        condition: service_healthy
+
   oracle-xe:
     image: carlosrosariocentennial/oracle-xe:latest
     container_name: oracle-xe
     ports:
-      - "1521:1521"  # Oracle database port
-      - "5500:5500"  # Oracle EM Express port
+      - "1521:1521"
+      - "5500:5500"
     environment:
       - ORACLE_PWD=test123
       - ORACLE_CHARACTERSET=AL32UTF8

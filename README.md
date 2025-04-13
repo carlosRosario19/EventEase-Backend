@@ -50,6 +50,7 @@ To stop and remove the Oracle XE container:
 ### Linux & macOS & Windows
 ```sh
 docker compose down
+docker stop eventease-backend && docker rm eventease-backend
 ```
 
 This README provides setup instructions for all users, ensuring a smooth installation of the Oracle XE database on different operating systems.

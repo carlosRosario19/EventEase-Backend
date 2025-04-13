@@ -10,6 +10,17 @@ Before running the setup, ensure you have the following installed:
 
 ## Setup Instructions
 
+### Windows (Command Prompt or PowerShell)
+1. Open **Command Prompt** or **PowerShell** as Administrator.
+2. Navigate to the project directory:
+3. Run the setup script:
+   ```bat
+   .\setup.bat
+   ```
+4. If prompted for credentials, enter:
+   Username: SYSTEM
+   Password: test123
+
 ### Linux & macOS
 1. Open a terminal.
 2. Navigate to the project directory.
@@ -24,18 +35,6 @@ Before running the setup, ensure you have the following installed:
 5. If prompted for credentials, enter:
    Username: SYSTEM
    Password: test123
-
-
-### Windows (Command Prompt or PowerShell)
-1. Open **Command Prompt** or **PowerShell** as Administrator.
-2. Navigate to the project directory:
-3. Run the setup script:
-   ```bat
-   setup.bat
-   ```
-4. If prompted for credentials, enter:
-Username: SYSTEM
-Password: test123
 
 ## What the Setup Script Does
 

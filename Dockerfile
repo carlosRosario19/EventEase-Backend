@@ -79,6 +79,11 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
+
+# Create working directory and upload directory
+RUN mkdir -p /app/upload-dir && \
+    chown appuser:appuser /app/upload-dir
+
 USER appuser
 
 # Copy the executable from the "package" stage.

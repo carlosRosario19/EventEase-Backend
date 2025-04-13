@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   oracle-xe:
     image: carlosrosariocentennial/oracle-xe:latest
     container_name: oracle-xe
     ports:
-      - "1521:1521"  # Oracle database port
-      - "5500:5500"  # Oracle EM Express port
+      - "1521:1521"
+      - "5500:5500"
     environment:
       - ORACLE_PWD=test123
       - ORACLE_CHARACTERSET=AL32UTF8
     healthcheck:
-      test: ["CMD", "sqlplus", "-L", "SYSTEM/test123@//localhost:1521/XE", "<", "/dev/null"]
-      interval: 10s
+      test: [ "CMD", "sqlplus", "-L", "SYSTEM/test123@//localhost:1521/XE", "<", "/dev/null" ]
+      interval: 30s
       timeout: 10s
       retries: 10

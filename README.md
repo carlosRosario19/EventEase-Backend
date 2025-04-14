@@ -10,7 +10,7 @@ Before running the setup, ensure you have the following installed:
 
 ## Setup Instructions
 
-### Windows (Command Prompt or PowerShell)
+### Windows (Command Prompt)
 1. Open **Command Prompt** or **PowerShell** as Administrator.
 2. Navigate to the project directory:
 3. Run the setup script:

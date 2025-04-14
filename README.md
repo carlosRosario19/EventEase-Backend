@@ -1,4 +1,4 @@
-# Oracle XE Database Setup
+# Oracle XE Database and Spring Boot REST API Setup
 
 This project includes scripts to set up and configure an Oracle XE database using Docker.
 
@@ -42,6 +42,7 @@ Before running the setup, ensure you have the following installed:
 2. Waits for the database listener to be ready.
 3. Copies the `init.sql` script into the running container.
 4. Executes `init.sql` to initialize the database.
+5. Starts the Spring Boot API container usign Docker.
 
 ## Stopping and Removing the Container
 

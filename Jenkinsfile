@@ -11,7 +11,7 @@ pipeline {
         // Stage 1: Checkout code from GitHub
         stage('Checkout') {
             steps {
-                git branch: 'config/pipeline',
+                git branch: 'main',
                 url: 'https://github.com/carlosRosario19/EventEase-Backend.git'
             }
         }

@@ -4,9 +4,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'This is the Checkout stage - where we would get code from Git'
-                // In a real pipeline, we would use:
-                // git branch: 'main', url: 'https://github.com/your-repo/your-project.git'
+                git branch: 'config/pipeline',
+                url: 'https://github.com/carlosRosario19/EventEase-Backend.git'
             }
         }
         

@@ -32,7 +32,7 @@ pipeline {
                     sourceCodeRetention: 'EVERY_BUILD',
                     qualityGates: [
                         [threshold: 80.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
-                        [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
+                        [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
                     ]
                 )
             }

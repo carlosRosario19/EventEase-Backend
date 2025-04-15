@@ -38,7 +38,7 @@ pipeline {
         // Stage 3: Checking test coverage
         stage('Coverage Check') {
             steps {
-                sh './mvnw jacoco:check' // Fails build if thresholds (80%) not met
+                sh './mvnw verify' // Fails build if thresholds (80%) not met
             }
         }
         

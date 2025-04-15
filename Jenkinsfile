@@ -34,6 +34,13 @@ pipeline {
                 sh './mvnw test'
             }
         }
+
+        // Stage 3: Checking test coverage
+        stage('Coverage Check') {
+            steps {
+                sh './mvnw jacoco:check' // Fails build if thresholds (80%) not met
+            }
+        }
         
         // Stage 4: Build Docker Image
         stage('Build Docker Image') {

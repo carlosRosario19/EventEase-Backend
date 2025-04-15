@@ -24,6 +24,17 @@ pipeline {
                 sh 'chmod +x mvnw'
                 // Run the build
                 sh './mvnw clean verify' // Fails build if thresholds (80%) not met
+
+                recordCoverage(
+                    tools: [[parser: 'JACOCO']],
+                    id: 'jacoco',
+                    name: 'JaCoCo Coverage',
+                    sourceCodeRetention: 'EVERY_BUILD',
+                    qualityGates: [
+                        [threshold: 80.0, metric: 'LINE', baseline: 'PROJECT', unstable: false],
+                        [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: false]
+                    ]
+                )
             }
         }
         

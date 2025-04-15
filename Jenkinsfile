@@ -21,9 +21,8 @@ pipeline {
         
         stage('Test') {
             steps {
-                echo 'This is the Test stage - where we would run tests'
-                // In a real pipeline, we might use:
-                // sh './mvnw test'
+                echo 'Running tests with Maven Wrapper...'
+                sh './mvnw test'
             }
         }
         

@@ -39,11 +39,6 @@ pipeline {
         stage('Coverage Check') {
             steps {
                 sh './mvnw jacoco:check' // Fails build if thresholds (80%) not met
-                publishHTML(target: [
-                            reportDir: 'target/site/jacoco',
-                            reportFiles: 'index.html',
-                            reportName: 'JaCoCo Report'
-                        ])
             }
         }
         

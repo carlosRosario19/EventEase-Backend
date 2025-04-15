@@ -1,14 +1,22 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials') // Jenkins credentials ID
+        DOCKER_IMAGE_NAME = 'carlosrosariocentennial/eventease-backend' // Replace with your Docker Hub username and image name
+        DOCKER_IMAGE_TAG = "latest" // Change to "build-${BUILD_NUMBER}" if you want unique tags
+    }
     
     stages {
+        // Stage 1: Checkout code from GitHub
         stage('Checkout') {
             steps {
                 git branch: 'config/pipeline',
                 url: 'https://github.com/carlosRosario19/EventEase-Backend.git'
             }
         }
-        
+
+        // Stage 2: Build the Maven project
         stage('Build') {
             steps {
                 echo 'Building Spring Boot application with Maven Wrapper...'
@@ -18,7 +26,8 @@ pipeline {
                 sh './mvnw clean package -DskipTests'
             }
         }
-        
+
+        // Stage 3: Run tests
         stage('Test') {
             steps {
                 echo 'Running tests with Maven Wrapper...'
@@ -26,53 +35,40 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
-            environment {
-                // Docker Hub credentials (store these in Jenkins credentials)
-                DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-
-                // Image name (replace with your Docker Hub username)
-                DOCKER_IMAGE = 'carlosrosariocentennial/eventease-backend'
-    
-                // Version/tag (using timestamp + build number)
-                IMAGE_TAG = "${new Date().format('yyyyMMdd-HHmmss')}-${env.BUILD_NUMBER}"
-            }
-
+        // Stage 4: Build Docker Image
+        stage('Build Docker Image') {
             steps {
                 script {
-                    echo 'Building Docker image...'
-
-                    // Build Docker image using the Dockerfile
-                    docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
-
-                    echo 'Logging in to Docker Hub...'
-                    // Authenticate with Docker Hub
-                    sh "echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin"
-
-                    echo 'Pushing Docker image...'
-                    // Push the image
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
-
-                        // Optionally push as 'latest' too
-                        docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push('latest')
-                    }
-
-                    echo 'Docker image pushed successfully!'
+                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}", ".")
                 }
             }
+        }
+
+        // Stage 5: Login to Docker Hub
+        stage('Login to Docker Hub') {
+            steps {
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
+                    echo 'Logged in to Docker Hub successfully'
+                }
+            }
+        }
+
+        // Stage 6: Push Docker Image to Docker Hub
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
+                    bat "docker push %DOCKER_IMAGE_NAME%:%DOCKER_IMAGE_TAG%"
+                }
+            }
+        }
     }
     
     post {
-        always {
-            echo 'This will always run at the end, regardless of success or failure'
-            sh 'docker logout'
-        }
         success {
-            echo 'This will only run if all stages completed successfully'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo 'This will only run if any stage failed'
+            echo '❌ Pipeline failed!'
         }
     }
 }

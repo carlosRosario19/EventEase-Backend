@@ -11,9 +11,8 @@ pipeline {
         
         stage('Build') {
             steps {
-                echo 'This is the Build stage - where we would compile the code'
-                // In a real pipeline, we might use:
-                // sh './mvnw clean package' for Maven projects
+                echo 'Building Spring Boot application with Maven Wrapper...'
+                sh './mvnw clean package -DskipTests'
             }
         }
         

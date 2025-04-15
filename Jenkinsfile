@@ -12,7 +12,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Spring Boot application with Maven Wrapper...'
-                sh 'mvn clean package -DskipTests'
+                // Set execute permissions for mvnw
+                sh 'chmod +x mvnw'
+                // Run the build
+                sh './mvnw clean package -DskipTests'
             }
         }
         

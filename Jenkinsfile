@@ -16,27 +16,18 @@ pipeline {
             }
         }
 
-        // stage 2: Compile the Maven project
-        stage('Compile') {
-            steps {
-                echo 'Compiling Spring Boot application with Maven Wrapper...'
-                // Set execute permissions for mvnw
-                sh 'chmod +x mvnw'
-                // Run the build
-                sh './mvnw clean compile'
-            }
-        }
-
         // Stage 2: Run tests, check test coverage and build
         stage('Test and Build') {
             steps {
                 echo 'Testing and building Spring Boot application with Maven Wrapper...'
+                // Set execute permissions for mvnw
+                sh 'chmod +x mvnw'
                 // Run the build
                 sh './mvnw clean verify' // Fails build if thresholds (80%) not met
             }
         }
         
-        // Stage 4: Build Docker Image
+        // Stage 3: Build Docker Image
         stage('Build Docker Image') {
             steps {
                 script {
@@ -45,7 +36,7 @@ pipeline {
             }
         }
 
-        // Stage 5: Login to Docker Hub
+        // Stage 4: Login to Docker Hub
         stage('Login to Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
@@ -54,7 +45,7 @@ pipeline {
             }
         }
 
-        // Stage 6: Push Docker Image to Docker Hub
+        // Stage 5: Push Docker Image to Docker Hub
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {

@@ -16,6 +16,8 @@ pipeline {
             }
         }
 
+
+
         // Stage 2: Run tests, check test coverage and build
         stage('Test and Build') {
             steps {
@@ -38,8 +40,16 @@ pipeline {
                 )
             }
         }
+        // Stage 3: SonarQube Static Code Analysis
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube-server') {
+                    sh './mvnw sonar:sonar'
+                }
+            }
+        }
         
-        // Stage 3: Build Docker Image
+        // Stage 4: Build Docker Image
         stage('Build Docker Image') {
             steps {
                 script {
@@ -48,7 +58,7 @@ pipeline {
             }
         }
 
-        // Stage 4: Login to Docker Hub
+        // Stage 5: Login to Docker Hub
         stage('Login to Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
@@ -57,7 +67,7 @@ pipeline {
             }
         }
 
-        // Stage 5: Push Docker Image to Docker Hub
+        // Stage 6: Push Docker Image to Docker Hub
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
